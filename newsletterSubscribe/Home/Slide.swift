@@ -14,8 +14,19 @@ class Slide: UIView {
         
     @IBOutlet weak var textLabel: UILabel!
     @IBOutlet weak var contentView: UIView!
+
         
-    static func createSlides() -> [Slide] {
+    static func createSlides() -> [Slide: URL?] {
+            
+        let bundlePath1 = Bundle.main.path(forResource: "tea-video-1", ofType: "mp4")
+        let bundlePath2 = Bundle.main.path(forResource: "tea-video-2", ofType: "mp4")
+        let bundlePath3 = Bundle.main.path(forResource: "tea-video-3", ofType: "mp4")
+        let bundlePath4 = Bundle.main.path(forResource: "tea-video-2", ofType: "mp4")
+
+        let url1 = URL(fileURLWithPath: bundlePath1!)
+        let url2 = URL(fileURLWithPath: bundlePath2!)
+        let url3 = URL(fileURLWithPath: bundlePath3!)
+        let url4 = URL(fileURLWithPath: bundlePath4!)
         
         let slide1: Slide = Bundle.main.loadNibNamed("Slide", owner: self, options: nil)?.first as! Slide
         slide1.textLabel.text = "Inscrivez-vous à notre newsletter et gagnez 15% tout de suite sur votre achat en magasin"
@@ -41,7 +52,7 @@ class Slide: UIView {
         slide4.textLabel.font = Constant.font.font17
         slide4.contentView.backgroundColor = .clear
         
-        return [slide1, slide2, slide3, slide4]
+        return [slide1: url1, slide2: url2, slide3: url3, slide4: url4]
     }
 
 }

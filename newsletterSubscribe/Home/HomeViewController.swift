@@ -28,7 +28,7 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
     
     // MARK: - Properties
     
-    var slides: [UIView] {
+    var slides: [UIView: URL?] {
         return Slide.createSlides()
     }
     
@@ -74,26 +74,20 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         
     }
     
-    private func setupSlideScrollView(slides : [UIView], scrollView: UIScrollView) {
-        
-        for i in 0 ..< slides.count {
-            slides[i].translatesAutoresizingMaskIntoConstraints = false
-            scrollView.addSubview(slides[i])
-            slides[i].topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
-            slides[i].leftAnchor.constraint(equalTo: scrollView.leftAnchor, constant: view.frame.width * CGFloat(i)).isActive = true
-            slides[i].bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
-            slides[i].widthAnchor.constraint(equalToConstant: view.frame.width).isActive = true
+    private func setupSlideScrollView(slides : [UIView: URL?], scrollView: UIScrollView) {
+        slides.enumerated().forEach { (index, item) in
+            item.key.translatesAutoresizingMaskIntoConstraints = false
+            scrollView.addSubview(item.key)
+            item.key.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
+            item.key.leftAnchor.constraint(equalTo: scrollView.leftAnchor, constant: view.frame.width * CGFloat(index)).isActive = true
+            item.key.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+            item.key.widthAnchor.constraint(equalToConstant: view.frame.width).isActive = true
             self.pageControl.numberOfPages = slides.count
-            setUpBackgroundVideo(slide: slides[i])
+            setUpBackgroundVideo(view: item.key, url: item.value!)
         }
     }
     
-    
-    
-    fileprivate func setUpBackgroundVideo(slide: UIView) {
-        let bundlePath = Bundle.main.path(forResource: "tea-video-1", ofType: "mp4")
-        guard bundlePath != nil else { return }
-        let url = URL(fileURLWithPath: bundlePath!)
+    fileprivate func setUpBackgroundVideo(view: UIView, url: URL) {
         let item = AVPlayerItem(url: url)
         videoPlayer = AVPlayer(playerItem: item)
         videoPlayerLayer = AVPlayerLayer(player: videoPlayer!)
@@ -108,7 +102,7 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         videoPlayer!.actionAtItemEnd = AVPlayer.ActionAtItemEnd.none
         videoPlayer!.playImmediately(atRate: 1)
         videoPlayerLayer?.videoGravity = .resizeAspectFill
-        slide.layer.insertSublayer(videoPlayerLayer!, at: 0)
+        view.layer.insertSublayer(videoPlayerLayer!, at: 0)
         
         NotificationCenter.default.addObserver(self, selector: #selector(playerItemEnded), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: videoPlayer!.currentItem)
         videoPlayer!.seek(to: CMTime.zero)
