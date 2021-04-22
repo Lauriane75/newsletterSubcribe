@@ -14,14 +14,13 @@ class Slide: UIView {
         
     @IBOutlet weak var textLabel: UILabel!
     @IBOutlet weak var contentView: UIView!
-
         
     static func createSlides() -> [Slide: URL?] {
             
         let bundlePath1 = Bundle.main.path(forResource: "tea-video-1", ofType: "mp4")
         let bundlePath2 = Bundle.main.path(forResource: "tea-video-2", ofType: "mp4")
         let bundlePath3 = Bundle.main.path(forResource: "tea-video-3", ofType: "mp4")
-        let bundlePath4 = Bundle.main.path(forResource: "tea-video-2", ofType: "mp4")
+        let bundlePath4 = Bundle.main.path(forResource: "tea-video-1", ofType: "mp4")
 
         let url1 = URL(fileURLWithPath: bundlePath1!)
         let url2 = URL(fileURLWithPath: bundlePath2!)

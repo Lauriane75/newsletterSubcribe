@@ -94,8 +94,8 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         // adjust the size and frame
         videoPlayerLayer?.frame = CGRect(x: 0,
                                          y: 0,
-                                         width: view.frame.size.width,
-                                         height: view.frame.size.height)
+                                         width: self.view.frame.size.width,
+                                         height: self.view.frame.size.height)
         
         // add it to the view and play it
         guard videoPlayer != nil else { return }
@@ -136,7 +136,7 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         self.emailTextField.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8).isActive = true
         self.emailTextField.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.10).isActive = true
         self.emailTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        self.emailTextField.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -90).isActive = true
+        self.emailTextField.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: 150).isActive = true
     }
     
     fileprivate func createSubscribeButton() {
@@ -165,6 +165,6 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
 struct Constant {
     struct font {
         static let font20: UIFont = UIFont.systemFont(ofSize: 20)
-        static let font17: UIFont = UIFont.boldSystemFont(ofSize: 17)
+        static let font17: UIFont = UIFont.boldSystemFont(ofSize: 20)
     }
 }
