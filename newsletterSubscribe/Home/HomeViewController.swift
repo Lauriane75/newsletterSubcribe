@@ -56,7 +56,7 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .blue
-        
+
         view.addSubview(self.scrollView)
         createScroolView()
         setupSlideScrollView(slides: slides, scrollView: scrollView)
