@@ -18,10 +18,10 @@
                     <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                     <subviews>
                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="JXj-wY-Eru" userLabel="Label Stack View">
-                            <rect key="frame" x="20" y="70" width="280" height="110"/>
+                            <rect key="frame" x="20" y="50" width="280" height="19.5"/>
                             <subviews>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TbN-8X-YKM" userLabel="Text Label">
-                                    <rect key="frame" x="0.0" y="0.0" width="280" height="110"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="280" height="19.5"/>
                                     <fontDescription key="fontDescription" type="system" pointSize="16"/>
                                     <nil key="textColor"/>
                                     <nil key="highlightedColor"/>
@@ -37,10 +37,9 @@
                     </subviews>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
-                        <constraint firstItem="JXj-wY-Eru" firstAttribute="top" secondItem="raB-rr-hKb" secondAttribute="top" constant="70" id="LRG-Wc-J72"/>
+                        <constraint firstItem="JXj-wY-Eru" firstAttribute="top" secondItem="raB-rr-hKb" secondAttribute="top" constant="50" id="LRG-Wc-J72"/>
                         <constraint firstItem="JXj-wY-Eru" firstAttribute="leading" secondItem="raB-rr-hKb" secondAttribute="leading" constant="20" id="aJG-oq-8b2"/>
                         <constraint firstAttribute="trailing" secondItem="JXj-wY-Eru" secondAttribute="trailing" constant="20" id="lsG-kc-Q22"/>
-                        <constraint firstAttribute="bottom" secondItem="JXj-wY-Eru" secondAttribute="bottom" constant="300" id="viq-Mt-ul6"/>
                     </constraints>
                 </view>
             </subviews>

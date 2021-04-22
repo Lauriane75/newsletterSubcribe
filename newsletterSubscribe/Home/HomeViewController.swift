@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import AVKit
 
 class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDelegate {
     
@@ -19,6 +20,12 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
     var VStackTop = UIStackView()
     var VStackBottom = UIStackView()
     
+    private var videoPlayer: AVPlayer?
+    private var videoPlayerLayer: AVPlayerLayer?
+    
+    var playerLooper: AVPlayerLooper?
+    var queuePlayer: AVQueuePlayer?
+    
     // MARK: - Properties
     
     var slides: [UIView] {
@@ -30,7 +37,7 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         self.scrollView = UIScrollView()
         self.pageControl = UIPageControl()
-        self.emailTextField = CustomTextField(withPlaceholder: "      Adresse email")
+        self.emailTextField = CustomTextField(withPlaceholder: "Adresse email")
         self.subscribeButton = CustomButton(title: "Connexion", textColor: .white, withBackgroundColor: .black, font: Constant.font.font20, underline: nil, cornerRadius: 20)
         
         VStackTop.addArrangedSubview(pageControl)
@@ -58,7 +65,6 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         self.scrollView.addSubview(self.emailTextField)
         self.scrollView.addSubview(self.subscribeButton)
         
-        
         createPageControl()
         createEmailTextField()
         createSubscribeButton()
@@ -78,7 +84,40 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
             slides[i].bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
             slides[i].widthAnchor.constraint(equalToConstant: view.frame.width).isActive = true
             self.pageControl.numberOfPages = slides.count
+            setUpBackgroundVideo(slide: slides[i])
         }
+    }
+    
+    
+    
+    fileprivate func setUpBackgroundVideo(slide: UIView) {
+        let bundlePath = Bundle.main.path(forResource: "tea-video-1", ofType: "mp4")
+        guard bundlePath != nil else { return }
+        let url = URL(fileURLWithPath: bundlePath!)
+        let item = AVPlayerItem(url: url)
+        videoPlayer = AVPlayer(playerItem: item)
+        videoPlayerLayer = AVPlayerLayer(player: videoPlayer!)
+        // adjust the size and frame
+        videoPlayerLayer?.frame = CGRect(x: 0,
+                                         y: 0,
+                                         width: view.frame.size.width,
+                                         height: view.frame.size.height)
+        
+        // add it to the view and play it
+        guard videoPlayer != nil else { return }
+        videoPlayer!.actionAtItemEnd = AVPlayer.ActionAtItemEnd.none
+        videoPlayer!.playImmediately(atRate: 1)
+        videoPlayerLayer?.videoGravity = .resizeAspectFill
+        slide.layer.insertSublayer(videoPlayerLayer!, at: 0)
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(playerItemEnded), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: videoPlayer!.currentItem)
+        videoPlayer!.seek(to: CMTime.zero)
+        videoPlayer!.play()
+        self.videoPlayer?.isMuted = true
+    }
+    
+    @objc func playerItemEnded() {
+        videoPlayer!.seek(to: CMTime.zero)
     }
     
     fileprivate func createScroolView() {
@@ -93,7 +132,7 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
     }
     
     fileprivate func createPageControl() {
-        self.pageControl.topAnchor.constraint(equalTo: self.view.topAnchor, constant: 220).isActive = true
+        self.pageControl.bottomAnchor.constraint(equalTo: self.view.bottomAnchor, constant: -20).isActive = true
         self.pageControl.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
         self.pageControl.currentPageIndicatorTintColor = .white
         self.pageControl.translatesAutoresizingMaskIntoConstraints = false
@@ -103,7 +142,7 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         self.emailTextField.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8).isActive = true
         self.emailTextField.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.10).isActive = true
         self.emailTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        self.emailTextField.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -200).isActive = true
+        self.emailTextField.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -90).isActive = true
     }
     
     fileprivate func createSubscribeButton() {
@@ -132,5 +171,6 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
 struct Constant {
     struct font {
         static let font20: UIFont = UIFont.systemFont(ofSize: 20)
+        static let font17: UIFont = UIFont.boldSystemFont(ofSize: 17)
     }
 }

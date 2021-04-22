@@ -41,20 +41,22 @@ class CustomButton: UIButton {
 
 class CustomTextField: UITextField {
     convenience init(withPlaceholder: String?) {
-        let font14: UIFont = UIFont.systemFont(ofSize: 14)
         
         self.init()
-        
-        placeholder = withPlaceholder
         tintColor = .gray
-        textColor = .black
+        textColor = .white
         backgroundColor = .white
-        font = font14
+        font = Constant.font.font17
         textAlignment = .left
         keyboardAppearance = .dark
         keyboardType = .default
         translatesAutoresizingMaskIntoConstraints = false
         layer.cornerRadius = 20
+        attributedPlaceholder = NSAttributedString(string: withPlaceholder!, attributes: [NSAttributedString.Key.foregroundColor : UIColor.white])
+        textAlignment = .center
+        backgroundColor = .clear
+        layer.borderWidth = 2
+        layer.borderColor = UIColor.white.cgColor
     }
 }
 
