@@ -35,7 +35,7 @@ class Slide: UIView {
 
         slides.enumerated().forEach { (index, item) in
             item.textLabel.textColor = .white
-            item.textLabel.font = Constant.font.font17
+            item.textLabel.font = Constant.font.font20Bold
             item.contentView.backgroundColor = UIColor.gray.withAlphaComponent(0.2)
             item.textLabel.text = strings[index]
         }

@@ -49,7 +49,7 @@ class CustomTextField: UITextField {
         tintColor = .gray
         textColor = .white
         backgroundColor = .white
-        font = Constant.font.font17
+        font = Constant.font.font20Bold
         textAlignment = .left
         keyboardAppearance = .dark
         keyboardType = .default

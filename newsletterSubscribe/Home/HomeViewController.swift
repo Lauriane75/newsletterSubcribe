@@ -8,6 +8,7 @@
 import UIKit
 import AVKit
 import MessageUI
+import WebKit
 
 class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDelegate, MFMailComposeViewControllerDelegate {
     
@@ -20,7 +21,8 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
     let errorView: UIView!
     let errorLabel: CustomLabel
     let logoButton: UIButton!
-
+    let backFromWebViewButton: CustomButton!
+    let webViewLabel: CustomLabel
     
     var stackView = UIStackView()
     
@@ -29,6 +31,7 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
     
     var playerLooper: AVPlayerLooper?
     var queuePlayer: AVQueuePlayer?
+    var myWebView: WKWebView!
     
     // MARK: - Properties
     
@@ -39,15 +42,18 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
     // MARK: - Initializer
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
+                
         self.scrollView = UIScrollView()
         self.emailTextField = CustomTextField(withPlaceholder: "Adresse email")
         self.subscribeButton = CustomButton(title: "Je m'inscris", textColor: .white, withBackgroundColor: .black, font: Constant.font.font20, underline: nil, cornerRadius: 20)
         self.errorView = CustomView(backgroundUIColor: UIColor.white.withAlphaComponent(0.4), radius: 15)
-        self.errorLabel = CustomLabel(textString: "Oups une erreur en tappant votre email ?\nEssayez encore !", color: UIColor(named: "red-rdt")!, textFont: Constant.font.font17)
+        self.errorLabel = CustomLabel(textString: "Oups une erreur en tappant votre email ?\nEssayez encore !", color: UIColor(named: "red-rdt")!, textFont: Constant.font.font20Bold)
         self.pageControl = UIPageControl()
         self.logoButton = UIButton()
         self.logoButton.setImage(UIImage(named: "logo-rdt"), for: .normal)
-        
+        self.backFromWebViewButton = CustomButton(title: "Retour", textColor: UIColor.black, withBackgroundColor: UIColor.clear, font: Constant.font.font14, underline: .none, cornerRadius: 0)
+        self.webViewLabel = CustomLabel(textString: "Descendez tout en bas\npour vous inscrire et obtenir votre remise en ligne", color: UIColor(named: "green-rdt")!, textFont: Constant.font.font14)
+
         stackView.addArrangedSubview(errorView)
         stackView.addArrangedSubview(errorLabel)
         stackView.addArrangedSubview(emailTextField)
@@ -67,8 +73,6 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        errorView.isHidden = true
-        
         let tap = UITapGestureRecognizer(target: self, action: #selector(hideKeyBoard))
         view.addGestureRecognizer(tap)
         
@@ -76,6 +80,7 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         createScroolView()
         setupSlideScrollView(slides: slides, scrollView: scrollView)
         
+        errorView.isHidden = true
         self.scrollView.addSubview(self.errorView)
         self.errorView.addSubview(self.errorLabel)
         self.scrollView.addSubview(self.emailTextField)
@@ -113,7 +118,18 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
     }
     
     @objc func didPressLogoButton() {
-        print("didPressLogoButton")
+        myWebView = WKWebView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: view.bounds.height))
+        myWebView.load(NSURLRequest(url: URL(string: "https://larouteduthe.com/fr/")!) as URLRequest)
+        self.view.addSubview(myWebView)
+        
+        myWebView.addSubview(backFromWebViewButton)
+        myWebView.addSubview(webViewLabel)
+        createBackButton()
+        createWebViewLabel()
+    }
+    
+    @objc func didPressBackFromWebViewButton() {
+        myWebView.isHidden = true
     }
     
     @objc func playerItemEnded() {
@@ -219,7 +235,6 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         self.subscribeButton.addTarget(self, action: #selector(didPressSubscribeButton), for: .touchUpInside)
     }
  
-    
     // Bottom
     
     fileprivate func createPageControl() {
@@ -238,6 +253,21 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         self.logoButton.addTarget(self, action: #selector(didPressLogoButton), for: .touchUpInside)
     }
     
+    fileprivate func createBackButton() {
+        self.backFromWebViewButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 30).isActive = true
+        self.backFromWebViewButton.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 15).isActive = true
+        self.backFromWebViewButton.translatesAutoresizingMaskIntoConstraints = false
+        self.backFromWebViewButton.addTarget(self, action: #selector(didPressBackFromWebViewButton), for: .touchUpInside)
+        self.backFromWebViewButton.layer.frame.size = CGSize(width: 180, height: 150)
+    }
+    
+    
+    fileprivate func createWebViewLabel() {
+        self.webViewLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 50).isActive = true
+        self.webViewLabel.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 25).isActive = true
+        self.webViewLabel.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -25).isActive = true
+        self.webViewLabel.translatesAutoresizingMaskIntoConstraints = false
+    }
     fileprivate func settingNotificationCenter() {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChange(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChange(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
@@ -289,7 +319,8 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
 struct Constant {
     struct font {
         static let font20: UIFont = UIFont.systemFont(ofSize: 20)
-        static let font17: UIFont = UIFont.boldSystemFont(ofSize: 20)
+        static let font14: UIFont = UIFont.systemFont(ofSize: 14)
+        static let font20Bold: UIFont = UIFont.boldSystemFont(ofSize: 20)
     }
 }
 
