@@ -18,7 +18,7 @@
                     <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                     <subviews>
                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="JXj-wY-Eru" userLabel="Label Stack View">
-                            <rect key="frame" x="20" y="50" width="280" height="19.5"/>
+                            <rect key="frame" x="20" y="110" width="280" height="19.5"/>
                             <subviews>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TbN-8X-YKM" userLabel="Text Label">
                                     <rect key="frame" x="0.0" y="0.0" width="280" height="19.5"/>
@@ -37,19 +37,19 @@
                     </subviews>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
-                        <constraint firstItem="JXj-wY-Eru" firstAttribute="top" secondItem="raB-rr-hKb" secondAttribute="top" constant="50" id="LRG-Wc-J72"/>
                         <constraint firstItem="JXj-wY-Eru" firstAttribute="leading" secondItem="raB-rr-hKb" secondAttribute="leading" constant="20" id="aJG-oq-8b2"/>
                         <constraint firstAttribute="trailing" secondItem="JXj-wY-Eru" secondAttribute="trailing" constant="20" id="lsG-kc-Q22"/>
+                        <constraint firstItem="TbN-8X-YKM" firstAttribute="top" secondItem="raB-rr-hKb" secondAttribute="top" constant="110" id="pva-1O-T1B"/>
                     </constraints>
                 </view>
             </subviews>
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="raB-rr-hKb" secondAttribute="bottom" id="7q8-ad-Yli"/>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="raB-rr-hKb" secondAttribute="trailing" id="CEc-wZ-Eb1"/>
-                <constraint firstItem="raB-rr-hKb" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="Tao-i4-ISM"/>
-                <constraint firstItem="raB-rr-hKb" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="i5X-f2-YQF"/>
+                <constraint firstAttribute="bottom" secondItem="raB-rr-hKb" secondAttribute="bottom" id="7q8-ad-Yli"/>
+                <constraint firstAttribute="trailing" secondItem="raB-rr-hKb" secondAttribute="trailing" id="CEc-wZ-Eb1"/>
+                <constraint firstItem="raB-rr-hKb" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="Tao-i4-ISM"/>
+                <constraint firstItem="raB-rr-hKb" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="i5X-f2-YQF"/>
             </constraints>
             <connections>
                 <outlet property="contentView" destination="raB-rr-hKb" id="T8W-BJ-zMB"/>

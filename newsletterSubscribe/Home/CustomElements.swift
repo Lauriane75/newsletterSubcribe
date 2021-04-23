@@ -9,19 +9,22 @@ import UIKit
 // add the right colors and font
 
 class CustomView: UIView {
-    convenience init(backgroundUIColor: UIColor) {
+    convenience init(backgroundUIColor: UIColor, radius: CGFloat) {
         self.init()
         backgroundColor = backgroundUIColor
+        layer.cornerRadius = radius
         translatesAutoresizingMaskIntoConstraints = false
     }
 }
 
 class CustomLabel: UILabel {
-    convenience init(textString: String?, textColor: UIColor, textFont: UIFont) {
+    convenience init(textString: String?, color: UIColor, textFont: UIFont) {
         self.init()
         text = textString
-        tintColor = textColor
+        textColor = color
         font = textFont
+        numberOfLines = 0
+        textAlignment = .center
         translatesAutoresizingMaskIntoConstraints = false
     }
 }
