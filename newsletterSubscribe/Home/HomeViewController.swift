@@ -68,6 +68,10 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         fatalError("init(coder:) has not been implemented")
     }
     
+    override func didReceiveMemoryWarning() {
+        super.didReceiveMemoryWarning()
+    }
+
     // MARK: - View life cycle
     
     override func viewDidLoad() {
@@ -132,10 +136,6 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         myWebView.isHidden = true
     }
     
-    @objc func playerItemEnded() {
-        videoPlayer!.seek(to: CMTime.zero)
-    }
-    
     @objc private func keyboardWillChange(notification: Notification) {
         
         guard let keyboardFrame: NSValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue
@@ -189,10 +189,18 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         videoPlayerLayer?.videoGravity = .resizeAspectFill
         view.layer.insertSublayer(videoPlayerLayer!, at: 0)
         
-        NotificationCenter.default.addObserver(self, selector: #selector(playerItemEnded), name: NSNotification.Name.AVPlayerItemDidPlayToEndTime, object: videoPlayer!.currentItem)
-        videoPlayer!.seek(to: CMTime.zero)
         videoPlayer!.play()
+
+        videoPlayer?.actionAtItemEnd = AVPlayer.ActionAtItemEnd.none
+        NotificationCenter.default.addObserver(self, selector: #selector(playerItemEnded), name: NSNotification.Name("AVPlayerItemDidPlayToEndTimeNotification"), object: videoPlayer?.currentItem)
         self.videoPlayer?.isMuted = true
+        
+    }
+    
+    @objc func playerItemEnded(_ notification : Notification) {
+        let player: AVPlayerItem = notification.object as! AVPlayerItem
+        player.seek(to: CMTime.zero) { (true) in
+        }
     }
     
     fileprivate func createScroolView() {
