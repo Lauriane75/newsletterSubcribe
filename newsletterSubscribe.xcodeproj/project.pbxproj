@@ -13,6 +13,7 @@
 		5B5987D8263171AA002B139B /* tea-video-3.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 5B5987D5263171AA002B139B /* tea-video-3.mp4 */; };
 		5B5987D9263171AA002B139B /* tea-video-1.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 5B5987D6263171AA002B139B /* tea-video-1.mp4 */; };
 		5B9C0C072630751100221DF5 /* Slide.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5B9C0C062630751100221DF5 /* Slide.xib */; };
+		5B9E3F502637204D0037748A /* HomeViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B9E3F4F2637204D0037748A /* HomeViewModel.swift */; };
 		5BDA3DF6261860DA0062AFDB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BDA3DF5261860DA0062AFDB /* AppDelegate.swift */; };
 		5BDA3DFA261860DA0062AFDB /* HomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BDA3DF9261860DA0062AFDB /* HomeViewController.swift */; };
 		5BDA3DFF261860DA0062AFDB /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 5BDA3DFE261860DA0062AFDB /* Assets.xcassets */; };
@@ -48,6 +49,7 @@
 		5B5987D5263171AA002B139B /* tea-video-3.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "tea-video-3.mp4"; sourceTree = "<group>"; };
 		5B5987D6263171AA002B139B /* tea-video-1.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = "tea-video-1.mp4"; sourceTree = "<group>"; };
 		5B9C0C062630751100221DF5 /* Slide.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = Slide.xib; sourceTree = "<group>"; };
+		5B9E3F4F2637204D0037748A /* HomeViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewModel.swift; sourceTree = "<group>"; };
 		5BDA3DF2261860DA0062AFDB /* newsletterSubscribe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = newsletterSubscribe.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		5BDA3DF5261860DA0062AFDB /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		5BDA3DF9261860DA0062AFDB /* HomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeViewController.swift; sourceTree = "<group>"; };
@@ -168,6 +170,7 @@
 				5BDA3E362618663E0062AFDB /* Slide.swift */,
 				5B9C0C062630751100221DF5 /* Slide.xib */,
 				5BDA3DF9261860DA0062AFDB /* HomeViewController.swift */,
+				5B9E3F4F2637204D0037748A /* HomeViewModel.swift */,
 				5B06CC8B2631C1D100206B33 /* Constant.swift */,
 			);
 			path = Home;
@@ -309,6 +312,7 @@
 			files = (
 				5BE9AB94261E180B00E64787 /* SceneDelegate.swift in Sources */,
 				5BDA3DFA261860DA0062AFDB /* HomeViewController.swift in Sources */,
+				5B9E3F502637204D0037748A /* HomeViewModel.swift in Sources */,
 				5BDA3DF6261860DA0062AFDB /* AppDelegate.swift in Sources */,
 				5BDA3E2F261862FC0062AFDB /* CustomElements.swift in Sources */,
 				5BDA3E372618663E0062AFDB /* Slide.swift in Sources */,

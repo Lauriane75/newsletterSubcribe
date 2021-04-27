@@ -19,7 +19,7 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
     let emailTextField: CustomTextField
     let subscribeButton: CustomButton
     let errorView: UIView!
-    let errorLabel: CustomLabel
+    var errorLabel: CustomLabel
     let logoButton: UIButton!
     let backFromWebViewButton: CustomButton!
     let webViewLabel: CustomLabel
@@ -33,6 +33,8 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
     var queuePlayer: AVQueuePlayer?
     var myWebView: WKWebView!
     
+    var viewModel = HomeViewModel.shared
+    
     // MARK: - Properties
     
     var slides: [UIView: URL?] {
@@ -42,7 +44,7 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
     // MARK: - Initializer
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
-                
+        
         self.scrollView = UIScrollView()
         self.emailTextField = CustomTextField(withPlaceholder: "Adresse email")
         self.subscribeButton = CustomButton(title: "Je m'inscris", textColor: .white, withBackgroundColor: .black, font: Constant.font.font20, underline: nil, cornerRadius: 20)
@@ -53,7 +55,7 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         self.logoButton.setImage(UIImage(named: "logo-rdt"), for: .normal)
         self.backFromWebViewButton = CustomButton(title: "Retour", textColor: UIColor.black, withBackgroundColor: UIColor.clear, font: Constant.font.font14, underline: .none, cornerRadius: 0)
         self.webViewLabel = CustomLabel(textString: "Descendez tout en bas\npour vous inscrire et obtenir votre remise en ligne", color: UIColor(named: "green-rdt")!, textFont: Constant.font.font14)
-
+        
         stackView.addArrangedSubview(errorView)
         stackView.addArrangedSubview(errorLabel)
         stackView.addArrangedSubview(emailTextField)
@@ -71,7 +73,20 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
-
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        bind(to: viewModel)
+        
+        viewModel.viewWillAppear()
+    }
+    
+    private func bind(to viewModel: HomeViewModel) {
+        viewModel.isHidden = { [weak self] state in
+            self?.errorView.isHidden = state
+        }
+    }
+    
     // MARK: - View life cycle
     
     override func viewDidLoad() {
@@ -102,6 +117,8 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         scrollView.delegate = self
         
         settingNotificationCenter()
+        
+        viewModel.viewDidLoad()
     }
     
     deinit {
@@ -114,18 +131,19 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
     
     @objc func didPressSubscribeButton(_ sender: UIButton) {
         guard let email = emailTextField.text else { return }
-        if validateEmail(enterEmail: email) {
-            sendEmail(email: email)
-        } else {
-            errorView.isHidden = false
+        viewModel.didPressSubscribeButton(email: email)
+        viewModel.canSendEmail = { [weak self] state in
+            if state == true {
+                self!.sendEmail(email: email)
+            }
         }
     }
     
     @objc func didPressLogoButton() {
+        let url = viewModel.setURL()
         myWebView = WKWebView(frame: CGRect(x: 0, y: 0, width: view.bounds.width, height: view.bounds.height))
-        myWebView.load(NSURLRequest(url: URL(string: "https://larouteduthe.com/fr/")!) as URLRequest)
+        myWebView.load(NSURLRequest(url: url) as URLRequest)
         self.view.addSubview(myWebView)
-        
         myWebView.addSubview(backFromWebViewButton)
         myWebView.addSubview(webViewLabel)
         createBackButton()
@@ -190,11 +208,10 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         view.layer.insertSublayer(videoPlayerLayer!, at: 0)
         
         videoPlayer!.play()
-
+        
         videoPlayer?.actionAtItemEnd = AVPlayer.ActionAtItemEnd.none
         NotificationCenter.default.addObserver(self, selector: #selector(playerItemEnded), name: NSNotification.Name("AVPlayerItemDidPlayToEndTimeNotification"), object: videoPlayer?.currentItem)
         self.videoPlayer?.isMuted = true
-        
     }
     
     @objc func playerItemEnded(_ notification : Notification) {
@@ -213,6 +230,40 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         self.scrollView.leftAnchor.constraint(equalTo: self.view.leftAnchor).isActive = true
         self.scrollView.contentSize = CGSize(width: view.frame.width * CGFloat(slides.count), height: view.frame.height)
     }
+    
+    internal func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        hideKeyBoard()
+        return true
+    }
+    
+    private func sendEmail(email: String) {
+        let messageBodyEmail = viewModel.setBodyMessage()
+        
+        if MFMailComposeViewController.canSendMail() {
+            let mail = MFMailComposeViewController()
+            mail.mailComposeDelegate = self
+            mail.setToRecipients([email])
+            mail.setSubject("Inscription newsletter")
+            mail.setMessageBody(messageBodyEmail, isHTML: true)
+            
+            present(mail, animated: true)
+        } else {
+            print("error")
+        }
+    }
+    
+    // MARK: - Delegate
+    
+    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
+        controller.dismiss(animated: true)
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        self.pageControl.currentPage = Int(scrollView.contentOffset.x / view.frame.width)
+    }
+}
+
+extension HomeViewController {
     
     // Top
     
@@ -242,7 +293,7 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         self.subscribeButton.topAnchor.constraint(equalTo: emailTextField.bottomAnchor, constant: 20).isActive = true
         self.subscribeButton.addTarget(self, action: #selector(didPressSubscribeButton), for: .touchUpInside)
     }
- 
+    
     // Bottom
     
     fileprivate func createPageControl() {
@@ -269,7 +320,6 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         self.backFromWebViewButton.layer.frame.size = CGSize(width: 180, height: 150)
     }
     
-    
     fileprivate func createWebViewLabel() {
         self.webViewLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 50).isActive = true
         self.webViewLabel.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 25).isActive = true
@@ -281,54 +331,4 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChange(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChange(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
     }
-    
-    internal func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        hideKeyBoard()
-        return true
-    }
-    
-    private func sendEmail(email: String) {
-        let randomInt = Int.random(in: 100000..<10000000)
-        
-        let messageBodyEmail = "Vous êtes inscrits à notre newsletter. Veuillez valider puis donner votre code de réduction  en caisse. Code : \(randomInt)"
-        
-        if MFMailComposeViewController.canSendMail() {
-            let mail = MFMailComposeViewController()
-            mail.mailComposeDelegate = self
-            mail.setToRecipients([email])
-            mail.setSubject("Inscription newsletter")
-            mail.setMessageBody(messageBodyEmail, isHTML: true)
-            
-            present(mail, animated: true)
-        } else {
-            print("error")
-        }
-    }
-    
-    //Email validation
-   private func validateEmail(enterEmail:String) -> Bool{
-        let emailFormat = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
-        let emailPredicate = NSPredicate(format:"SELF MATCHES %@",emailFormat)
-        return emailPredicate.evaluate(with:enterEmail)
-    }
-
-    
-    // MARK: - Delegate
-    
-    func mailComposeController(_ controller: MFMailComposeViewController, didFinishWith result: MFMailComposeResult, error: Error?) {
-        controller.dismiss(animated: true)
-    }
-    
-    func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        self.pageControl.currentPage = Int(scrollView.contentOffset.x / view.frame.width)
-    }
 }
-
-struct Constant {
-    struct font {
-        static let font20: UIFont = UIFont.systemFont(ofSize: 20)
-        static let font14: UIFont = UIFont.systemFont(ofSize: 14)
-        static let font20Bold: UIFont = UIFont.boldSystemFont(ofSize: 20)
-    }
-}
-
