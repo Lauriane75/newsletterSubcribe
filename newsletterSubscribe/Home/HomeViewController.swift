@@ -9,6 +9,7 @@ import UIKit
 import AVKit
 import MessageUI
 import WebKit
+import FirebaseFirestore
 
 class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDelegate, MFMailComposeViewControllerDelegate {
     
@@ -40,6 +41,8 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
     var slides: [UIView: URL?] {
         return Slide.createSlides()
     }
+    
+    var state: Bool = false
     
     // MARK: - Initializer
     
@@ -85,13 +88,16 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         viewModel.isHidden = { [weak self] state in
             self?.errorView.isHidden = state
         }
+        viewModel.canSendEmail = { [weak self] state in
+            self?.state = state
+        }
     }
     
     // MARK: - View life cycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+            
         let tap = UITapGestureRecognizer(target: self, action: #selector(hideKeyBoard))
         view.addGestureRecognizer(tap)
         
@@ -132,10 +138,8 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
     @objc func didPressSubscribeButton(_ sender: UIButton) {
         guard let email = emailTextField.text else { return }
         viewModel.didPressSubscribeButton(email: email)
-        viewModel.canSendEmail = { [weak self] state in
-            if state == true {
-                self!.sendEmail(email: email)
-            }
+        if state == true {
+            self.sendEmail(email: email)
         }
     }
     

@@ -6,11 +6,12 @@
 //
 
 import Foundation
+import FirebaseFirestore
 
 class HomeViewModel {
     
     // MARK: - Properties
-
+    
     static let shared = HomeViewModel()
     
     // MARK: - Output
@@ -28,10 +29,16 @@ class HomeViewModel {
     }
     
     func didPressSubscribeButton(email: String) {
+        let dataBase = Firestore.firestore()
         if validateEmail(enterEmail: email) {
             canSendEmail?(true)
+            dataBase.collection("users").addDocument(data: ["email" : email]) { (error) in
+                if error != nil {
+                    print("error saving users")
+                }
+            }
         } else {
-            isHidden?(false)
+            self.isHidden?(false)
         }
     }
     
@@ -44,12 +51,12 @@ class HomeViewModel {
         return URL(string: "https://larouteduthe.com/fr/")!
     }
     
-    private func validateEmail(enterEmail:String) -> Bool{
+    private func validateEmail(enterEmail:String) -> Bool {
         let emailFormat = "[A-Z0-9a-z._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,64}"
         let emailPredicate = NSPredicate(format:"SELF MATCHES %@",emailFormat)
         return emailPredicate.evaluate(with:enterEmail)
     }
     
-
+    
     
 }
