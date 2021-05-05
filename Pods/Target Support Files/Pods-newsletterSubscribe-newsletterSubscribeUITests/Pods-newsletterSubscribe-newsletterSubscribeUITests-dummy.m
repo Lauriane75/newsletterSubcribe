@@ -1,0 +1,5 @@
+#import <Foundation/Foundation.h>
+@interface PodsDummy_Pods_newsletterSubscribe_newsletterSubscribeUITests : NSObject
+@end
+@implementation PodsDummy_Pods_newsletterSubscribe_newsletterSubscribeUITests
+@end

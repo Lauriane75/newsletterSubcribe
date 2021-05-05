@@ -17,6 +17,7 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
     
     var scrollView: UIScrollView!
     var pageControl: UIPageControl!
+    let nameTextField: CustomTextField
     let emailTextField: CustomTextField
     let subscribeButton: CustomButton
     let errorView: UIView!
@@ -24,8 +25,11 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
     let logoButton: UIButton!
     let backFromWebViewButton: CustomButton!
     let webViewLabel: CustomLabel
+    let bottomLabel: CustomLabel
+
     
     var stackView = UIStackView()
+
     
     private var videoPlayer: AVPlayer?
     private var videoPlayerLayer: AVPlayerLayer?
@@ -42,6 +46,8 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         return Slide.createSlides()
     }
     
+    var swipe: UISwipeGestureRecognizer!
+    
     var state: Bool = false
     
     // MARK: - Initializer
@@ -50,20 +56,24 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         
         self.scrollView = UIScrollView()
         self.emailTextField = CustomTextField(withPlaceholder: "Adresse email")
+        self.nameTextField = CustomTextField(withPlaceholder: "Prénom")
         self.subscribeButton = CustomButton(title: "Je m'inscris", textColor: .white, withBackgroundColor: .black, font: Constant.font.font20, underline: nil, cornerRadius: 20)
         self.errorView = CustomView(backgroundUIColor: UIColor.white.withAlphaComponent(0.4), radius: 15)
         self.errorLabel = CustomLabel(textString: "Oups une erreur en tappant votre email ?\nEssayez encore !", color: UIColor(named: "red-rdt")!, textFont: Constant.font.font20Bold)
         self.pageControl = UIPageControl()
+        self.bottomLabel = CustomLabel(textString: "Pour plus de promo : \n Inscrivez-vous sur notre site en bas de page", color: .white, textFont: Constant.font.font20)
         self.logoButton = UIButton()
         self.logoButton.setImage(UIImage(named: "logo-rdt"), for: .normal)
         self.backFromWebViewButton = CustomButton(title: "Retour", textColor: UIColor.black, withBackgroundColor: UIColor.clear, font: Constant.font.font14, underline: .none, cornerRadius: 0)
-        self.webViewLabel = CustomLabel(textString: "Descendez tout en bas\npour vous inscrire et obtenir votre remise en ligne", color: UIColor(named: "green-rdt")!, textFont: Constant.font.font14)
-        
+        self.webViewLabel = CustomLabel(textString: "Descendez en bas de page\n vous inscrire et obtenir votre remise en ligne", color: UIColor(named: "green-rdt")!, textFont: Constant.font.font14)
+ 
         stackView.addArrangedSubview(errorView)
         stackView.addArrangedSubview(errorLabel)
         stackView.addArrangedSubview(emailTextField)
+        stackView.addArrangedSubview(nameTextField)
         stackView.addArrangedSubview(subscribeButton)
         stackView.addArrangedSubview(pageControl)
+        stackView.addArrangedSubview(bottomLabel)
         stackView.addArrangedSubview(logoButton)
         
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
@@ -109,14 +119,18 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         self.scrollView.addSubview(self.errorView)
         self.errorView.addSubview(self.errorLabel)
         self.scrollView.addSubview(self.emailTextField)
+        self.scrollView.addSubview(self.nameTextField)
         self.scrollView.addSubview(self.subscribeButton)
         self.scrollView.addSubview(self.pageControl)
+        self.scrollView.addSubview(self.bottomLabel)
         self.scrollView.addSubview(self.logoButton)
         
         createErrorView()
         createEmailTextField()
+        createNameTextField()
         createSubscribeButton()
         createPageControl()
+        createBottomLabel()
         createLogoButton()
         
         emailTextField.delegate = self
@@ -149,9 +163,7 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         myWebView.load(NSURLRequest(url: url) as URLRequest)
         self.view.addSubview(myWebView)
         myWebView.addSubview(backFromWebViewButton)
-        myWebView.addSubview(webViewLabel)
         createBackButton()
-        createWebViewLabel()
     }
     
     @objc func didPressBackFromWebViewButton() {
@@ -160,12 +172,9 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
     
     @objc private func keyboardWillChange(notification: Notification) {
         
-        guard let keyboardFrame: NSValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue
-        else {
-            return
-        }
+        guard let keyboardFrame: NSValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
         let keyboardRectangle = keyboardFrame.cgRectValue
-        let keyboardHeight = keyboardRectangle.height
+        let keyboardHeight = keyboardRectangle.height - 20
         
         if notification.name == UIResponder.keyboardWillShowNotification ||
             notification.name == UIResponder.keyboardWillChangeFrameNotification {
@@ -275,7 +284,7 @@ extension HomeViewController {
         self.errorView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8).isActive = true
         self.errorView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.1).isActive = true
         self.errorView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        self.errorView.bottomAnchor.constraint(equalTo: view.centerYAnchor).isActive = true
+        self.errorView.bottomAnchor.constraint(equalTo: view.centerYAnchor, constant: -50).isActive = true
         
         self.errorLabel.topAnchor.constraint(equalTo: errorView.topAnchor).isActive = true
         self.errorLabel.bottomAnchor.constraint(equalTo: errorView.bottomAnchor).isActive = true
@@ -283,11 +292,18 @@ extension HomeViewController {
         self.errorLabel.trailingAnchor.constraint(equalTo: errorView.trailingAnchor).isActive = true
     }
     
+    fileprivate func createNameTextField() {
+        self.nameTextField.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8).isActive = true
+        self.nameTextField.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.07).isActive = true
+        self.nameTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        self.nameTextField.topAnchor.constraint(equalTo: errorView.bottomAnchor, constant: 20).isActive = true
+    }
+    
     fileprivate func createEmailTextField() {
         self.emailTextField.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8).isActive = true
         self.emailTextField.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.07).isActive = true
         self.emailTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        self.emailTextField.topAnchor.constraint(equalTo: errorView.bottomAnchor, constant: 20).isActive = true
+        self.emailTextField.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 20).isActive = true
     }
     
     fileprivate func createSubscribeButton() {
@@ -307,8 +323,15 @@ extension HomeViewController {
         self.pageControl.translatesAutoresizingMaskIntoConstraints = false
     }
     
+    fileprivate func createBottomLabel() {
+        self.bottomLabel.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -50).isActive = true
+        self.bottomLabel.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 25).isActive = true
+        self.bottomLabel.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -25).isActive = true
+        self.bottomLabel.translatesAutoresizingMaskIntoConstraints = false
+    }
+    
     fileprivate func createLogoButton() {
-        self.logoButton.bottomAnchor.constraint(equalTo: self.pageControl.topAnchor, constant: -10).isActive = true
+        self.logoButton.bottomAnchor.constraint(equalTo: self.bottomLabel.topAnchor, constant: -10).isActive = true
         self.logoButton.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
         self.logoButton.heightAnchor.constraint(equalTo: self.view.heightAnchor, multiplier: 0.1).isActive = true
         self.logoButton.widthAnchor.constraint(equalTo: self.logoButton.heightAnchor, multiplier: 1.2).isActive = true
@@ -324,12 +347,6 @@ extension HomeViewController {
         self.backFromWebViewButton.layer.frame.size = CGSize(width: 180, height: 150)
     }
     
-    fileprivate func createWebViewLabel() {
-        self.webViewLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 50).isActive = true
-        self.webViewLabel.leadingAnchor.constraint(equalTo: self.view.leadingAnchor, constant: 25).isActive = true
-        self.webViewLabel.trailingAnchor.constraint(equalTo: self.view.trailingAnchor, constant: -25).isActive = true
-        self.webViewLabel.translatesAutoresizingMaskIntoConstraints = false
-    }
     fileprivate func settingNotificationCenter() {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChange(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChange(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
