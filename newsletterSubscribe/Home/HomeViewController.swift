@@ -20,13 +20,14 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
     let nameTextField: CustomTextField
     let emailTextField: CustomTextField
     let subscribeButton: CustomButton
-    let errorView: UIView!
+    let errorView: CustomView
+    let subscriptionValidatedView: CustomView
+    let subscriptionValidatedLabel: CustomLabel
     var errorLabel: CustomLabel
     let logoButton: UIButton!
     let backFromWebViewButton: CustomButton!
     let webViewLabel: CustomLabel
     let bottomLabel: CustomLabel
-
     
     var stackView = UIStackView()
 
@@ -59,13 +60,15 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         self.nameTextField = CustomTextField(withPlaceholder: "Prénom")
         self.subscribeButton = CustomButton(title: "Je m'inscris", textColor: .white, withBackgroundColor: .black, font: Constant.font.font20, underline: nil, cornerRadius: 20)
         self.errorView = CustomView(backgroundUIColor: UIColor.white.withAlphaComponent(0.4), radius: 15)
-        self.errorLabel = CustomLabel(textString: "Oups une erreur en tappant votre email ?\nEssayez encore !", color: UIColor(named: "red-rdt")!, textFont: Constant.font.font20Bold)
+        self.errorLabel = CustomLabel(textString: "", color: UIColor(named: "red-rdt")!, textFont: Constant.font.font20Bold)
         self.pageControl = UIPageControl()
         self.bottomLabel = CustomLabel(textString: "Pour plus de promo : \n Inscrivez-vous sur notre site en bas de page", color: .white, textFont: Constant.font.font20)
         self.logoButton = UIButton()
         self.logoButton.setImage(UIImage(named: "logo-rdt"), for: .normal)
         self.backFromWebViewButton = CustomButton(title: "Retour", textColor: UIColor.black, withBackgroundColor: UIColor.clear, font: Constant.font.font14, underline: .none, cornerRadius: 0)
         self.webViewLabel = CustomLabel(textString: "Descendez en bas de page\n vous inscrire et obtenir votre remise en ligne", color: UIColor(named: "green-rdt")!, textFont: Constant.font.font14)
+        self.subscriptionValidatedView = CustomView(backgroundUIColor: .white, radius: 20)
+        self.subscriptionValidatedLabel = CustomLabel(textString: "Inscription validée !\nRendez-vous dans votre boite mail. Veuillez présenter votre coupon de remise en caisse", color: .black, textFont: Constant.font.font20)
  
         stackView.addArrangedSubview(errorView)
         stackView.addArrangedSubview(errorLabel)
@@ -75,7 +78,9 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         stackView.addArrangedSubview(pageControl)
         stackView.addArrangedSubview(bottomLabel)
         stackView.addArrangedSubview(logoButton)
-        
+        stackView.addArrangedSubview(subscriptionValidatedView)
+        stackView.addArrangedSubview(subscriptionValidatedLabel)
+
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
     }
     
@@ -95,11 +100,14 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
     }
     
     private func bind(to viewModel: HomeViewModel) {
-        viewModel.isHidden = { [weak self] state in
+        viewModel.errorViewIsHidden = { [weak self] state in
             self?.errorView.isHidden = state
         }
         viewModel.canSendEmail = { [weak self] state in
             self?.state = state
+        }
+        viewModel.errorText = { [weak self] text in
+            self?.errorLabel.text = text
         }
     }
     
@@ -116,6 +124,8 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         setupSlideScrollView(slides: slides, scrollView: scrollView)
         
         errorView.isHidden = true
+        subscriptionValidatedView.isHidden = true
+        
         self.scrollView.addSubview(self.errorView)
         self.errorView.addSubview(self.errorLabel)
         self.scrollView.addSubview(self.emailTextField)
@@ -124,6 +134,8 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         self.scrollView.addSubview(self.pageControl)
         self.scrollView.addSubview(self.bottomLabel)
         self.scrollView.addSubview(self.logoButton)
+        self.scrollView.addSubview(self.subscriptionValidatedView)
+        self.subscriptionValidatedView.addSubview(self.subscriptionValidatedLabel)
         
         createErrorView()
         createEmailTextField()
@@ -132,6 +144,7 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         createPageControl()
         createBottomLabel()
         createLogoButton()
+        createSubscriptionValidatedView()
         
         emailTextField.delegate = self
         scrollView.delegate = self
@@ -149,11 +162,17 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
     
     // MARK: - Action
     
+    @objc func didPressOutOfElements(_ sender: UIView) {
+        hideKeyBoard()
+    }
+    
     @objc func didPressSubscribeButton(_ sender: UIButton) {
-        guard let email = emailTextField.text else { return }
-        viewModel.didPressSubscribeButton(email: email)
+        let name = nameTextField.text
+        let email = emailTextField.text
+        viewModel.didPressSubscribeButton(name: name, email: email)
         if state == true {
-            self.sendEmail(email: email)
+            self.sendEmail(email: email!)
+            subscriptionValidatedView.isHidden = false
         }
     }
     
@@ -174,7 +193,7 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         
         guard let keyboardFrame: NSValue = notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else { return }
         let keyboardRectangle = keyboardFrame.cgRectValue
-        let keyboardHeight = keyboardRectangle.height - 20
+        let keyboardHeight = keyboardRectangle.height - 70
         
         if notification.name == UIResponder.keyboardWillShowNotification ||
             notification.name == UIResponder.keyboardWillChangeFrameNotification {
@@ -186,6 +205,9 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
     
     @objc private func hideKeyBoard() {
         emailTextField.resignFirstResponder()
+        nameTextField.resignFirstResponder()
+        errorView.isHidden = true
+        subscriptionValidatedView.isHidden = true
     }
     
     // MARK: - Private Functions
@@ -276,6 +298,8 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
     }
 }
 
+// MARK: - Constraints
+
 extension HomeViewController {
     
     // Top
@@ -284,7 +308,7 @@ extension HomeViewController {
         self.errorView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8).isActive = true
         self.errorView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.1).isActive = true
         self.errorView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
-        self.errorView.bottomAnchor.constraint(equalTo: view.centerYAnchor, constant: -50).isActive = true
+        self.errorView.bottomAnchor.constraint(equalTo: view.centerYAnchor, constant: -80).isActive = true
         
         self.errorLabel.topAnchor.constraint(equalTo: errorView.topAnchor).isActive = true
         self.errorLabel.bottomAnchor.constraint(equalTo: errorView.bottomAnchor).isActive = true
@@ -294,21 +318,21 @@ extension HomeViewController {
     
     fileprivate func createNameTextField() {
         self.nameTextField.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8).isActive = true
-        self.nameTextField.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.07).isActive = true
+        self.nameTextField.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.06).isActive = true
         self.nameTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         self.nameTextField.topAnchor.constraint(equalTo: errorView.bottomAnchor, constant: 20).isActive = true
     }
     
     fileprivate func createEmailTextField() {
         self.emailTextField.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8).isActive = true
-        self.emailTextField.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.07).isActive = true
+        self.emailTextField.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.06).isActive = true
         self.emailTextField.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         self.emailTextField.topAnchor.constraint(equalTo: nameTextField.bottomAnchor, constant: 20).isActive = true
     }
     
     fileprivate func createSubscribeButton() {
         self.subscribeButton.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8).isActive = true
-        self.subscribeButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.08).isActive = true
+        self.subscribeButton.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.07).isActive = true
         self.subscribeButton.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
         self.subscribeButton.topAnchor.constraint(equalTo: emailTextField.bottomAnchor, constant: 20).isActive = true
         self.subscribeButton.addTarget(self, action: #selector(didPressSubscribeButton), for: .touchUpInside)
@@ -345,6 +369,19 @@ extension HomeViewController {
         self.backFromWebViewButton.translatesAutoresizingMaskIntoConstraints = false
         self.backFromWebViewButton.addTarget(self, action: #selector(didPressBackFromWebViewButton), for: .touchUpInside)
         self.backFromWebViewButton.layer.frame.size = CGSize(width: 180, height: 150)
+    }
+    
+    fileprivate func createSubscriptionValidatedView() {
+        self.subscriptionValidatedView.widthAnchor.constraint(equalTo: view.widthAnchor, multiplier: 0.8).isActive = true
+        self.subscriptionValidatedView.heightAnchor.constraint(equalTo: subscriptionValidatedView.widthAnchor).isActive = true
+        self.subscriptionValidatedView.centerXAnchor.constraint(equalTo: view.centerXAnchor).isActive = true
+        self.subscriptionValidatedView.centerYAnchor.constraint(equalTo: emailTextField.centerYAnchor, constant: -20).isActive = true
+        
+        self.subscriptionValidatedLabel.topAnchor.constraint(equalTo: subscriptionValidatedView.topAnchor).isActive = true
+        self.subscriptionValidatedLabel.bottomAnchor.constraint(equalTo: subscriptionValidatedView.bottomAnchor).isActive = true
+        self.subscriptionValidatedLabel.leadingAnchor.constraint(equalTo: subscriptionValidatedView.leadingAnchor, constant: 20).isActive = true
+        self.subscriptionValidatedLabel.trailingAnchor.constraint(equalTo: subscriptionValidatedView.trailingAnchor, constant: -20).isActive = true
+        
     }
     
     fileprivate func settingNotificationCenter() {

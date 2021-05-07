@@ -16,29 +16,39 @@ class HomeViewModel {
     
     // MARK: - Output
     
-    var isHidden: ((Bool) -> Void)?
+    var errorViewIsHidden: ((Bool) -> Void)?
+    var validatedViewIsHidden: ((Bool) -> Void)?
     var canSendEmail: ((Bool) -> Void)?
+    var errorText: ((String) -> Void)?
     
     // MARK: - Input
     
     func viewDidLoad() {
-        isHidden?(true)
+        errorViewIsHidden?(true)
+        validatedViewIsHidden?(true)
     }
     
     func viewWillAppear() {
     }
     
-    func didPressSubscribeButton(email: String) {
+    func didPressSubscribeButton(name: String?, email: String?) {
         let dataBase = Firestore.firestore()
-        if validateEmail(enterEmail: email) {
+        guard name != "" && email != "" else {
+            errorText?("Remplissez votre Prénom et email pour vous inscrire")
+            errorViewIsHidden?(false)
+            return
+        }
+        if validateEmail(enterEmail: email!) {
             canSendEmail?(true)
-            dataBase.collection("users").addDocument(data: ["email" : email]) { (error) in
-                if error != nil {
-                    print("error saving users")
+            dataBase.collection("users").addDocument(data: ["email": email!, "name": name!]) { (error) in
+                guard error != nil else {
+                    self.errorText?("Pas de connexion internet.\nVeuillez recommencer")
+                    return
                 }
             }
         } else {
-            self.isHidden?(false)
+            self.errorText?("Oups une erreur en tappant votre email ?\nEssayez encore !")
+            self.errorViewIsHidden?(false)
         }
     }
     

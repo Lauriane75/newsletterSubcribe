@@ -209,8 +209,8 @@
 			children = (
 				5BE1CD3726386B2D0085327D /* xib */,
 				5BDA3E2E261862FC0062AFDB /* CustomElements.swift */,
-				5BDA3DF9261860DA0062AFDB /* HomeViewController.swift */,
 				5BE1CCFB263857D40085327D /* DataBaseManager.swift */,
+				5BDA3DF9261860DA0062AFDB /* HomeViewController.swift */,
 				5B9E3F4F2637204D0037748A /* HomeViewModel.swift */,
 				5B06CC8B2631C1D100206B33 /* Constant.swift */,
 			);
