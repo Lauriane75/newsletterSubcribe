@@ -6,7 +6,6 @@
 //
 
 import UIKit
-// add the right colors and font
 
 class CustomView: UIView {
     convenience init(backgroundUIColor: UIColor, radius: CGFloat) {
@@ -18,9 +17,8 @@ class CustomView: UIView {
 }
 
 class CustomLabel: UILabel {
-    convenience init(textString: String?, color: UIColor, textFont: UIFont) {
+    convenience init(color: UIColor, textFont: UIFont) {
         self.init()
-        text = textString
         textColor = color
         font = textFont
         numberOfLines = 0
@@ -30,9 +28,8 @@ class CustomLabel: UILabel {
 }
 
 class CustomButton: UIButton {
-    convenience init(title: String?, textColor: UIColor, withBackgroundColor: UIColor?, font: UIFont, underline: NSAttributedString?, cornerRadius: CGFloat?) {
+    convenience init(textColor: UIColor, withBackgroundColor: UIColor?, font: UIFont, underline: NSAttributedString?, cornerRadius: CGFloat?) {
         self.init()
-        setTitle(title, for: .normal)
         setTitleColor(textColor, for: .normal)
         titleLabel?.font = font
         backgroundColor = withBackgroundColor
@@ -43,23 +40,18 @@ class CustomButton: UIButton {
 }
 
 class CustomTextField: UITextField {
-    convenience init(withPlaceholder: String?) {
-        
+    convenience init(uiFont: UIFont) {
         self.init()
-        tintColor = .gray
         textColor = .white
-        backgroundColor = .white
-        font = Constant.font.font20Bold
-        textAlignment = .left
+        font = uiFont
         keyboardAppearance = .dark
         keyboardType = .default
-        translatesAutoresizingMaskIntoConstraints = false
         layer.cornerRadius = 20
-        attributedPlaceholder = NSAttributedString(string: withPlaceholder!, attributes: [NSAttributedString.Key.foregroundColor : UIColor.white])
         textAlignment = .center
         backgroundColor = .clear
         layer.borderWidth = 2
         layer.borderColor = UIColor.white.cgColor
+        translatesAutoresizingMaskIntoConstraints = false
     }
 }
 

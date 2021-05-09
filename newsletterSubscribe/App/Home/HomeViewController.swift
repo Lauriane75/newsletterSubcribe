@@ -24,13 +24,13 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
     let subscriptionValidatedView: CustomView
     let subscriptionValidatedLabel: CustomLabel
     var errorLabel: CustomLabel
-    let logoButton: UIButton!
+    let logoButton: CustomButton
     let backFromWebViewButton: CustomButton!
     let webViewLabel: CustomLabel
     let bottomLabel: CustomLabel
     
     var stackView = UIStackView()
-
+    
     
     private var videoPlayer: AVPlayer?
     private var videoPlayerLayer: AVPlayerLayer?
@@ -51,25 +51,26 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
     
     var state: Bool = false
     
+    private var data: [HomeDataItem] = []
+    
     // MARK: - Initializer
     
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         
         self.scrollView = UIScrollView()
-        self.emailTextField = CustomTextField(withPlaceholder: "Adresse email")
-        self.nameTextField = CustomTextField(withPlaceholder: "Prénom")
-        self.subscribeButton = CustomButton(title: "Je m'inscris", textColor: .white, withBackgroundColor: .black, font: Constant.font.font20, underline: nil, cornerRadius: 20)
+        self.emailTextField = CustomTextField(uiFont: Constant.font.font20Bold)
+        self.nameTextField = CustomTextField(uiFont: Constant.font.font20Bold)
+        self.subscribeButton = CustomButton(textColor: .white, withBackgroundColor: .black, font: Constant.font.font20, underline: nil, cornerRadius: 20)
         self.errorView = CustomView(backgroundUIColor: UIColor.white.withAlphaComponent(0.4), radius: 15)
-        self.errorLabel = CustomLabel(textString: "", color: UIColor(named: "red-rdt")!, textFont: Constant.font.font20Bold)
+        self.errorLabel = CustomLabel(color: Constant.color.red, textFont: Constant.font.font20Bold)
         self.pageControl = UIPageControl()
-        self.bottomLabel = CustomLabel(textString: "Pour plus de promo : \n Inscrivez-vous sur notre site en bas de page", color: .white, textFont: Constant.font.font20)
-        self.logoButton = UIButton()
-        self.logoButton.setImage(UIImage(named: "logo-rdt"), for: .normal)
-        self.backFromWebViewButton = CustomButton(title: "Retour", textColor: UIColor.black, withBackgroundColor: UIColor.clear, font: Constant.font.font14, underline: .none, cornerRadius: 0)
-        self.webViewLabel = CustomLabel(textString: "Descendez en bas de page\n vous inscrire et obtenir votre remise en ligne", color: UIColor(named: "green-rdt")!, textFont: Constant.font.font14)
+        self.bottomLabel = CustomLabel(color: .white, textFont: Constant.font.font20)
+        self.logoButton = CustomButton()
+        self.backFromWebViewButton = CustomButton(textColor: UIColor.black, withBackgroundColor: UIColor.clear, font: Constant.font.font14, underline: .none, cornerRadius: 0)
+        self.webViewLabel = CustomLabel(color: Constant.color.green, textFont: Constant.font.font14)
         self.subscriptionValidatedView = CustomView(backgroundUIColor: .white, radius: 20)
-        self.subscriptionValidatedLabel = CustomLabel(textString: "Inscription validée !\nRendez-vous dans votre boite mail. Veuillez présenter votre coupon de remise en caisse", color: .black, textFont: Constant.font.font20)
- 
+        self.subscriptionValidatedLabel = CustomLabel(color: .black, textFont: Constant.font.font20)
+        
         stackView.addArrangedSubview(errorView)
         stackView.addArrangedSubview(errorLabel)
         stackView.addArrangedSubview(emailTextField)
@@ -80,7 +81,7 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         stackView.addArrangedSubview(logoButton)
         stackView.addArrangedSubview(subscriptionValidatedView)
         stackView.addArrangedSubview(subscriptionValidatedLabel)
-
+        
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
     }
     
@@ -92,39 +93,23 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         super.didReceiveMemoryWarning()
     }
     
+    // MARK: - View life cycle
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         bind(to: viewModel)
-        
         viewModel.viewWillAppear()
     }
     
-    private func bind(to viewModel: HomeViewModel) {
-        viewModel.errorViewIsHidden = { [weak self] state in
-            self?.errorView.isHidden = state
-        }
-        viewModel.canSendEmail = { [weak self] state in
-            self?.state = state
-        }
-        viewModel.errorText = { [weak self] text in
-            self?.errorLabel.text = text
-        }
-    }
-    
-    // MARK: - View life cycle
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-            
+        
         let tap = UITapGestureRecognizer(target: self, action: #selector(hideKeyBoard))
         view.addGestureRecognizer(tap)
         
         view.addSubview(self.scrollView)
         createScroolView()
         setupSlideScrollView(slides: slides, scrollView: scrollView)
-        
-        errorView.isHidden = true
-        subscriptionValidatedView.isHidden = true
         
         self.scrollView.addSubview(self.errorView)
         self.errorView.addSubview(self.errorLabel)
@@ -150,8 +135,6 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         scrollView.delegate = self
         
         settingNotificationCenter()
-        
-        viewModel.viewDidLoad()
     }
     
     deinit {
@@ -212,16 +195,29 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
     
     // MARK: - Private Functions
     
-    private func setupSlideScrollView(slides : [UIView: URL?], scrollView: UIScrollView) {
-        slides.enumerated().forEach { (index, item) in
-            item.key.translatesAutoresizingMaskIntoConstraints = false
-            scrollView.addSubview(item.key)
-            item.key.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
-            item.key.leftAnchor.constraint(equalTo: scrollView.leftAnchor, constant: view.frame.width * CGFloat(index)).isActive = true
-            item.key.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
-            item.key.widthAnchor.constraint(equalToConstant: view.frame.width).isActive = true
-            self.pageControl.numberOfPages = slides.count
-            setUpBackgroundVideo(view: item.key, url: item.value!)
+    fileprivate func bind(to viewModel: HomeViewModel) {
+        viewModel.errorViewIsHidden = { [weak self] state in
+            self?.errorView.isHidden = state
+        }
+        viewModel.canSendEmail = { [weak self] state in
+            self?.state = state
+        }
+        viewModel.errorText = { [weak self] text in
+            self?.errorLabel.text = text
+        }
+        viewModel.visibleItems = { [weak self] items in
+            guard let data = items.first else { return }
+            guard let self = self else { return }
+            self.emailTextField.attributedPlaceholder = NSAttributedString(string: data.emailTextField, attributes: [NSAttributedString.Key.foregroundColor : UIColor.white])
+            self.nameTextField.attributedPlaceholder = NSAttributedString(string: data.nameTextField, attributes: [NSAttributedString.Key.foregroundColor : UIColor.white])
+            self.subscribeButton.setTitle(data.subscribeButton, for: .normal)
+            self.backFromWebViewButton.setTitle(data.backButton, for: .normal)
+            self.bottomLabel.text = data.bottomLabel
+            self.subscriptionValidatedLabel.text = data.subscriptionValidatedLabel
+            self.logoButton.setImage(Constant.image.logo, for: .normal)
+        }
+        viewModel.validatedViewIsHidden = { [weak self] state in
+            self?.subscriptionValidatedView.isHidden = state
         }
     }
     
@@ -229,21 +225,16 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         let item = AVPlayerItem(url: url)
         videoPlayer = AVPlayer(playerItem: item)
         videoPlayerLayer = AVPlayerLayer(player: videoPlayer!)
-        // adjust the size and frame
         videoPlayerLayer?.frame = CGRect(x: 0,
                                          y: 0,
                                          width: self.view.frame.size.width,
                                          height: self.view.frame.size.height)
-        
-        // add it to the view and play it
-        guard videoPlayer != nil else { return }
+                guard videoPlayer != nil else { return }
         videoPlayer!.actionAtItemEnd = AVPlayer.ActionAtItemEnd.none
         videoPlayer!.playImmediately(atRate: 1)
         videoPlayerLayer?.videoGravity = .resizeAspectFill
         view.layer.insertSublayer(videoPlayerLayer!, at: 0)
-        
         videoPlayer!.play()
-        
         videoPlayer?.actionAtItemEnd = AVPlayer.ActionAtItemEnd.none
         NotificationCenter.default.addObserver(self, selector: #selector(playerItemEnded), name: NSNotification.Name("AVPlayerItemDidPlayToEndTimeNotification"), object: videoPlayer?.currentItem)
         self.videoPlayer?.isMuted = true
@@ -255,31 +246,26 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         }
     }
     
-    fileprivate func createScroolView() {
-        self.scrollView.isPagingEnabled = true
-        self.scrollView.bounces = false
-        self.scrollView.translatesAutoresizingMaskIntoConstraints = false
-        self.scrollView.topAnchor.constraint(equalTo: self.view.topAnchor).isActive = true
-        self.scrollView.rightAnchor.constraint(equalTo: self.view.rightAnchor).isActive = true
-        self.scrollView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor).isActive = true
-        self.scrollView.leftAnchor.constraint(equalTo: self.view.leftAnchor).isActive = true
-        self.scrollView.contentSize = CGSize(width: view.frame.width * CGFloat(slides.count), height: view.frame.height)
-    }
-    
     internal func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         hideKeyBoard()
         return true
     }
     
-    private func sendEmail(email: String) {
-        let messageBodyEmail = viewModel.setBodyMessage()
+    fileprivate func settingNotificationCenter() {
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChange(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChange(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChange(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
+    }
+    
+    fileprivate func sendEmail(email: String) {
+        guard let emailData = viewModel.setEmailData().first else { return }
         
         if MFMailComposeViewController.canSendMail() {
             let mail = MFMailComposeViewController()
             mail.mailComposeDelegate = self
             mail.setToRecipients([email])
-            mail.setSubject("Inscription newsletter")
-            mail.setMessageBody(messageBodyEmail, isHTML: true)
+            mail.setSubject(emailData.key)
+            mail.setMessageBody(emailData.value, isHTML: true)
             
             present(mail, animated: true)
         } else {
@@ -301,6 +287,30 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
 // MARK: - Constraints
 
 extension HomeViewController {
+    
+    private func setupSlideScrollView(slides : [UIView: URL?], scrollView: UIScrollView) {
+        slides.enumerated().forEach { (index, item) in
+            item.key.translatesAutoresizingMaskIntoConstraints = false
+            scrollView.addSubview(item.key)
+            item.key.topAnchor.constraint(equalTo: scrollView.topAnchor).isActive = true
+            item.key.leftAnchor.constraint(equalTo: scrollView.leftAnchor, constant: view.frame.width * CGFloat(index)).isActive = true
+            item.key.bottomAnchor.constraint(equalTo: view.bottomAnchor).isActive = true
+            item.key.widthAnchor.constraint(equalToConstant: view.frame.width).isActive = true
+            self.pageControl.numberOfPages = slides.count
+            setUpBackgroundVideo(view: item.key, url: item.value!)
+        }
+    }
+    
+    fileprivate func createScroolView() {
+        self.scrollView.isPagingEnabled = true
+        self.scrollView.bounces = false
+        self.scrollView.translatesAutoresizingMaskIntoConstraints = false
+        self.scrollView.topAnchor.constraint(equalTo: self.view.topAnchor).isActive = true
+        self.scrollView.rightAnchor.constraint(equalTo: self.view.rightAnchor).isActive = true
+        self.scrollView.bottomAnchor.constraint(equalTo: self.view.bottomAnchor).isActive = true
+        self.scrollView.leftAnchor.constraint(equalTo: self.view.leftAnchor).isActive = true
+        self.scrollView.contentSize = CGSize(width: view.frame.width * CGFloat(slides.count), height: view.frame.height)
+    }
     
     // Top
     
@@ -382,11 +392,5 @@ extension HomeViewController {
         self.subscriptionValidatedLabel.leadingAnchor.constraint(equalTo: subscriptionValidatedView.leadingAnchor, constant: 20).isActive = true
         self.subscriptionValidatedLabel.trailingAnchor.constraint(equalTo: subscriptionValidatedView.trailingAnchor, constant: -20).isActive = true
         
-    }
-    
-    fileprivate func settingNotificationCenter() {
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChange(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChange(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillChange(notification:)), name: UIResponder.keyboardWillChangeFrameNotification, object: nil)
     }
 }
