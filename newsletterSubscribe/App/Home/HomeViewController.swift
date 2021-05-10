@@ -156,6 +156,8 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         if state == true {
             self.sendEmail(email: email!)
             subscriptionValidatedView.isHidden = false
+            self.emailTextField.attributedPlaceholder = NSAttributedString(string: self.data.first!.emailTextField, attributes: [NSAttributedString.Key.foregroundColor : UIColor.white])
+            self.nameTextField.attributedPlaceholder = NSAttributedString(string: self.data.first!.nameTextField, attributes: [NSAttributedString.Key.foregroundColor : UIColor.white])
         }
     }
     
@@ -208,6 +210,7 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
         viewModel.visibleItems = { [weak self] items in
             guard let data = items.first else { return }
             guard let self = self else { return }
+            self.data = [data]
             self.emailTextField.attributedPlaceholder = NSAttributedString(string: data.emailTextField, attributes: [NSAttributedString.Key.foregroundColor : UIColor.white])
             self.nameTextField.attributedPlaceholder = NSAttributedString(string: data.nameTextField, attributes: [NSAttributedString.Key.foregroundColor : UIColor.white])
             self.subscribeButton.setTitle(data.subscribeButton, for: .normal)

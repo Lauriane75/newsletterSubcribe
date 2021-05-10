@@ -66,7 +66,7 @@ class HomeViewModel {
         let number = Int.random(in: 100000..<10000000)
         let objectEmail = homeDataItems.first?.objectEmail
         let bodyEmail = homeDataItems.first?.bodyEmail
-        return ["\(bodyEmail ?? "") \(number)" : "\(objectEmail ?? "")"]
+        return ["\(objectEmail ?? "")" : "\(bodyEmail ?? "") \(number)"]
     }
     
     func setURL() -> URL {
