@@ -58,8 +58,8 @@ class HomeViewController: UIViewController, UIScrollViewDelegate, UITextFieldDel
     override init(nibName nibNameOrNil: String?, bundle nibBundleOrNil: Bundle?) {
         
         self.scrollView = UIScrollView()
-        self.emailTextField = CustomTextField(uiFont: Constant.font.font20Bold)
-        self.nameTextField = CustomTextField(uiFont: Constant.font.font20Bold)
+        self.emailTextField = CustomTextField(typeKeyboard: .emailAddress)
+        self.nameTextField = CustomTextField(typeKeyboard: .default)
         self.subscribeButton = CustomButton(textColor: .white, withBackgroundColor: .black, font: Constant.font.font20, underline: nil, cornerRadius: 20)
         self.errorView = CustomView(backgroundUIColor: UIColor.white.withAlphaComponent(0.4), radius: 15)
         self.errorLabel = CustomLabel(color: Constant.color.red, textFont: Constant.font.font20Bold)

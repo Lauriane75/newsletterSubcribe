@@ -40,12 +40,12 @@ class CustomButton: UIButton {
 }
 
 class CustomTextField: UITextField {
-    convenience init(uiFont: UIFont) {
+    convenience init(typeKeyboard: UIKeyboardType) {
         self.init()
         textColor = .white
-        font = uiFont
+        font = Constant.font.font20
         keyboardAppearance = .dark
-        keyboardType = .default
+        keyboardType = typeKeyboard
         layer.cornerRadius = 20
         textAlignment = .center
         backgroundColor = .clear
